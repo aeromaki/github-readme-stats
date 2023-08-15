@@ -70,6 +70,7 @@ const fetchTopLanguages = async (
   exclude_repo = [],
   size_weight = 1,
   count_weight = 0,
+  exclude_langs = []
 ) => {
   if (!username) throw new MissingParamError(["username"]);
 
@@ -119,10 +120,14 @@ const fetchTopLanguages = async (
 
   let repoCount = 0;
 
+  const excludeLangSet = new Set(exclude_langs);
+
   repoNodes = repoNodes
     .filter((node) => node.languages.edges.length > 0)
     // flatten the list of language nodes
     .reduce((acc, curr) => curr.languages.edges.concat(acc), [])
+    // filter out languages to exclude
+    .filter((node) => !excludeLangSet.has(node.node.name))
     .reduce((acc, prev) => {
       // get the size of the language (bytes)
       let langSize = prev.size;
